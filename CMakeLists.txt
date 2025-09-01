@@ -56,6 +56,3 @@ pico_set_program_description(${PROJECT_NAME} "Pico Build Action - Simple blink t
 # CMake flags
 set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections")
-
-# add url via pico_set_program_url
-example_auto_set_url(${PROJECT_NAME})
