@@ -44,6 +44,10 @@ pico_add_extra_outputs(${PROJECT_NAME})
 # Link to libraries
 target_link_libraries(${PROJECT_NAME} pico_stdlib)
 
+if (PICO_CYW43_SUPPORTED)
+    target_link_libraries(blink pico_cyw43_arch_none)
+endif()
+
 # PicoTool binary information
 pico_set_program_name(${PROJECT_NAME} ${PROJECT_NAME})
 pico_set_program_version(${PROJECT_NAME} ${PROJECT_VERSION})
@@ -52,3 +56,6 @@ pico_set_program_description(${PROJECT_NAME} "Pico Build Action - Simple blink t
 # CMake flags
 set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections")
+
+# add url via pico_set_program_url
+example_auto_set_url(blink)

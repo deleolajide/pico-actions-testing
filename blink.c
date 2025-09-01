@@ -1,43 +1,53 @@
-/*
-    Pico Build Action - Simple blink test program.
-    Copyright 2024 Samyar Sadat Akhavi
-    Written by Samyar Sadat Akhavi, 2024.
- 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-  
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
- 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https: www.gnu.org/licenses/>.
-*/
+/**
+ * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
-
-// ---- Libraries & Modules ----
-#include <stdio.h>
 #include "pico/stdlib.h"
 
+// Pico W devices use a GPIO on the WIFI chip for the LED,
+// so when building for Pico W, CYW43_WL_GPIO_LED_PIN will be defined
+#ifdef CYW43_WL_GPIO_LED_PIN
+#include "pico/cyw43_arch.h"
+#endif
 
-// ---- Definitions ----
-#define ONBOARD_LED  25
+#ifndef LED_DELAY_MS
+#define LED_DELAY_MS 250
+#endif
 
+// Perform initialisation
+int pico_led_init(void) {
+#if defined(PICO_DEFAULT_LED_PIN)
+    // A device like Pico that uses a GPIO for the LED will define PICO_DEFAULT_LED_PIN
+    // so we can use normal GPIO functionality to turn the led on and off
+    gpio_init(PICO_DEFAULT_LED_PIN);
+    gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
+    return PICO_OK;
+#elif defined(CYW43_WL_GPIO_LED_PIN)
+    // For Pico W devices we need to initialise the driver etc
+    return cyw43_arch_init();
+#endif
+}
 
-// ---- Main Function ----
-int main() 
-{
-    gpio_init(ONBOARD_LED);
-    gpio_set_dir(ONBOARD_LED, true);
+// Turn the led on or off
+void pico_set_led(bool led_on) {
+#if defined(PICO_DEFAULT_LED_PIN)
+    // Just set the GPIO on or off
+    gpio_put(PICO_DEFAULT_LED_PIN, led_on);
+#elif defined(CYW43_WL_GPIO_LED_PIN)
+    // Ask the wifi "driver" to set the GPIO on or off
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_on);
+#endif
+}
 
-    while (true) 
-    {
-        gpio_put(ONBOARD_LED, 1);
-        sleep_ms(1000);
-        gpio_put(ONBOARD_LED, 0);
-        sleep_ms(1000);
+int main() {
+    int rc = pico_led_init();
+    hard_assert(rc == PICO_OK);
+    while (true) {
+        pico_set_led(true);
+        sleep_ms(LED_DELAY_MS);
+        pico_set_led(false);
+        sleep_ms(LED_DELAY_MS);
     }
 }
