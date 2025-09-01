@@ -3,7 +3,6 @@ include(pico_sdk_import.cmake)
 project(compresion_stress_test)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
-set(PICO_PLATFORM rp2350-arm-s)
 set(PICO_BOARD pico2_w)
 pico_sdk_init()
 add_executable(main
